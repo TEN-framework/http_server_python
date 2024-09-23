@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  release:
+    types: [created]
+  push:
+    branches:
+      - "**"
+    paths-ignore:
+      - ".vscode/**"
+      - ".devcontainer/**"
+      - ".github/**"
+      - "!.github/workflows/ci.yml"
+      - "**.md"
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ten-framework/astra_agents_build:0.5.2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+          submodules: "true"
+
+      - name: Check ten dependencies
+        run: |
+          tman install
