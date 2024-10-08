@@ -1,7 +1,7 @@
 {
   "type": "extension",
   "name": "http_server_python",
-  "version": "0.5.1-rc1",
+  "version": "0.5.2-rc1",
   "dependencies": [
     {
       "type": "system",
