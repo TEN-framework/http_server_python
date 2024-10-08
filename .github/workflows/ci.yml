@@ -46,4 +46,5 @@ jobs:
           mv manifest.gen.json manifest.json
           jq . manifest.json
           
-          tman --verbose publish
+          # publish to store
+          tman --verbose --user-token ${{ secrets.TEN_CLOUD_STORE }} publish
