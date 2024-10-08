@@ -13,12 +13,18 @@ on:
       - "!.github/workflows/ci.yml"
       - "**.md"
   pull_request:
+    paths-ignore:
+      - ".vscode/**"
+      - ".devcontainer/**"
+      - ".github/**"
+      - "!.github/workflows/ci.yml"
+      - "**.md"
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ten-framework/astra_agents_build:0.5.2
+      image: ghcr.io/ten-framework/ten_agent_build:0.1.0
     steps:
       - uses: actions/checkout@v4
         with:
