@@ -44,6 +44,6 @@ jobs:
           # check after replace 
           diff manifest.gen.json manifest.json 
           mv manifest.gen.json manifest.json
-          jq . manifest.gen.json
+          jq . manifest.json
           
           tman --verbose publish
