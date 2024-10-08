@@ -42,7 +42,7 @@ jobs:
           jq '.version = "${{ github.ref_name }}"' manifest.json >manifest.gen.json
 
           # check after replace 
-          diff manifest.gen.json manifest.json 
+          diff manifest.gen.json manifest.json || true
           mv manifest.gen.json manifest.json
           jq . manifest.json
           
