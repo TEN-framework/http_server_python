@@ -24,7 +24,7 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ten-framework/ten_agent_build:0.1.0
+      image: ghcr.io/ten-framework/ten_agent_build:0.2.1
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,6 +45,6 @@ jobs:
           diff manifest.gen.json manifest.json || true
           mv manifest.gen.json manifest.json
           jq . manifest.json
-          
+
           # publish to store
           tman --verbose --user-token ${{ secrets.TEN_CLOUD_STORE }} publish
