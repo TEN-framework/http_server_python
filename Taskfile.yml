@@ -1,0 +1,26 @@
+version: '3'
+
+tasks:
+  clean:
+    desc: clean up
+    cmds:
+      - rm -rf .ten .pytest_cache
+      - find . -type d -name __pycache__ -exec rm -rf {} \; || true
+
+  test:
+    desc: run tests
+    cmds:
+      - ./tests/bin/start {{ .CLI_ARGS }}
+
+  install:
+    desc: install dependencies
+    cmds:
+      - tman install
+      - pip install -r tests/requirements.txt
+
+  lint:
+    desc: lint codes
+    env:
+      PYTHONPATH: "{{.USER_WORKING_DIR}}/.ten/app/ten_packages/system/ten_runtime_python/lib:{{.USER_WORKING_DIR}}/.ten/app/ten_packages/system/ten_runtime_python/interface"
+    cmds:
+      -  pylint ./*.py
