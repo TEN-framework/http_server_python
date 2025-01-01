@@ -8,6 +8,7 @@ from ten import (
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
 from functools import partial
+import re
 
 
 class HTTPHandler(BaseHTTPRequestHandler):
@@ -18,23 +19,34 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         self.ten.log_debug(f"post request incoming {self.path}")
-        if self.path == "/cmd":
+
+        # match path /cmd/<cmd_name>
+        match = re.match(r"^/cmd/([^/]+)$", self.path)
+        if match:
+            cmd_name = match.group(1)
             try:
                 content_length = int(self.headers["Content-Length"])
                 input = self.rfile.read(content_length).decode("utf-8")
-                self.ten.log_info(f"incoming request {input}")
+                self.ten.log_info(f"incoming request {self.path} {input}")
 
                 # processing by send_cmd
                 cmd_result_event = threading.Event()
                 cmd_result: CmdResult
-                def cmd_callback(_, result):
+
+                def cmd_callback(_, result, ten_error):
                     nonlocal cmd_result_event
                     nonlocal cmd_result
                     cmd_result = result
-                    self.ten.log_info("cmd callback result: {}".format(cmd_result.to_json()))
+                    self.ten.log_info(
+                        "cmd callback result: {}".format(
+                            cmd_result.get_property_to_json("")
+                        )
+                    )
                     cmd_result_event.set()
 
-                self.ten.send_cmd(Cmd.create_from_json(input),cmd_callback)
+                cmd = Cmd.create(cmd_name)
+                cmd.set_property_from_json("", input)
+                self.ten.send_cmd(cmd, cmd_callback)
                 event_got = cmd_result_event.wait(timeout=5)
 
                 # return response
@@ -42,10 +54,14 @@ class HTTPHandler(BaseHTTPRequestHandler):
                     self.send_response_only(504)
                     self.end_headers()
                     return
-                self.send_response(200 if cmd_result.get_status_code() == StatusCode.OK else 502)
-                self.send_header('Content-Type', 'application/json')
+                self.send_response(
+                    200 if cmd_result.get_status_code() == StatusCode.OK else 502
+                )
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(cmd_result.to_json().encode(encoding='utf_8'))
+                self.wfile.write(
+                    cmd_result.get_property_to_json("").encode(encoding="utf_8")
+                )
             except Exception as e:
                 self.ten.log_warn("failed to handle request, err {}".format(e))
                 self.send_response_only(500)
