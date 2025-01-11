@@ -17,7 +17,7 @@ This project is a TEN extension that implements a simple HTTP server, enabling i
 
 ## API
 
-### POST /cmd/{cmd_name}
+### POST `/cmd/{cmd_name}`
 
 - **Description**: Sends a command with the specified name on the TEN graph.    
 - **Request Body**: JSON object containing the command properties.    
@@ -25,7 +25,7 @@ This project is a TEN extension that implements a simple HTTP server, enabling i
 
 #### Example Request
 
-```json
+```bash
 curl -X POST http://127.0.0.1:8888/cmd/example_cmd_name \
 -H "Content-Type: application/json" \
 -d '{
