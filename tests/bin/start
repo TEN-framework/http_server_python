@@ -19,4 +19,4 @@ export TEN_DISABLE_ADDON_UNREGISTER_AFTER_APP_CLOSE=true
 #
 # Refer to https://github.com/pytorch/pytorch/issues/102360?from_wecom=1#issuecomment-1708989096
 
-pytest tests/ "$@"
+pytest -s tests/ "$@"
