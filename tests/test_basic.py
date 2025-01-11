@@ -14,6 +14,7 @@ from ten import (
 )
 import httpx
 import threading
+import math
 
 
 class ExtensionTesterBasic(ExtensionTester):
@@ -23,6 +24,16 @@ class ExtensionTesterBasic(ExtensionTester):
 
     def on_cmd(self, ten_env: TenEnvTester, cmd: Cmd) -> None:
         print(f"on_cmd name {cmd.get_name()}")
+
+        num_val = cmd.get_property_int('num')
+        assert num_val == 1
+        str_val = cmd.get_property_string('str')
+        assert str_val == '111'
+        unicode_str_val = cmd.get_property_string('unicode_str')
+        assert unicode_str_val == '你好！'
+        num_float_val = cmd.get_property_float('num_float')
+        assert math.isclose(num_float_val, -1.5)
+
         ten_env.return_result(CmdResult.create(StatusCode.OK), cmd)
 
     def on_start(self, ten_env: TenEnvTester) -> None:
@@ -34,7 +45,9 @@ class ExtensionTesterBasic(ExtensionTester):
         ten_env.on_start_done()
 
     def _async_test(self, ten_env: TenEnvTester) -> None:
-        property_json = {"num": 1, "str": "111"}
+        property_json = {"num": 1, "num_float": -
+                         1.5, "str": "111", "unicode_str": "你好！"}
+
         r = httpx.post("http://127.0.0.1:8888/cmd/abc",
                        json=property_json, timeout=5)
         print(r)

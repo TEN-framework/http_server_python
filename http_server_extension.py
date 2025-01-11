@@ -1,114 +1,80 @@
+import asyncio
+from aiohttp import web
+import json
+
 from ten import (
-    Extension,
-    TenEnv,
+    AsyncExtension,
+    AsyncTenEnv,
     Cmd,
     StatusCode,
     CmdResult,
 )
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import threading
-from functools import partial
-import re
 
 
-class HTTPHandler(BaseHTTPRequestHandler):
-    def __init__(self, ten: TenEnv, *args, directory=None, **kwargs):
-        ten.log_debug(f"new handler: {directory} {args} {kwargs}")
-        self.ten = ten
-        super().__init__(*args, **kwargs)
-
-    def do_POST(self):
-        self.ten.log_debug(f"post request incoming {self.path}")
-
-        # match path /cmd/<cmd_name>
-        match = re.match(r"^/cmd/([^/]+)$", self.path)
-        if match:
-            cmd_name = match.group(1)
-            try:
-                content_length = int(self.headers["Content-Length"])
-                input = self.rfile.read(content_length).decode("utf-8")
-                self.ten.log_info(f"incoming request {self.path} {input}")
-
-                # processing by send_cmd
-                cmd_result_event = threading.Event()
-                cmd_result: CmdResult
-
-                def cmd_callback(_, result, ten_error):
-                    nonlocal cmd_result_event
-                    nonlocal cmd_result
-                    cmd_result = result
-                    self.ten.log_info(
-                        "cmd callback result: {}".format(
-                            cmd_result.get_property_to_json("")
-                        )
-                    )
-                    cmd_result_event.set()
-
-                cmd = Cmd.create(cmd_name)
-                cmd.set_property_from_json("", input)
-                self.ten.send_cmd(cmd, cmd_callback)
-                event_got = cmd_result_event.wait(timeout=5)
-
-                # return response
-                if not event_got:  # timeout
-                    self.send_response_only(504)
-                    self.end_headers()
-                    return
-                self.send_response(
-                    200 if cmd_result.get_status_code() == StatusCode.OK else 502
-                )
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(
-                    cmd_result.get_property_to_json("").encode(encoding="utf_8")
-                )
-            except Exception as e:
-                self.ten.log_warn("failed to handle request, err {}".format(e))
-                self.send_response_only(500)
-                self.end_headers()
-        else:
-            self.ten.log_warn(f"invalid path: {self.path}")
-            self.send_response_only(404)
-            self.end_headers()
-
-
-class HTTPServerExtension(Extension):
+class HTTPServerExtension(AsyncExtension):
     def __init__(self, name: str):
         super().__init__(name)
-        self.listen_addr = "127.0.0.1"
-        self.listen_port = 8888
-        self.cmd_white_list = None
-        self.server = None
-        self.thread = None
+        self.listen_addr: str = "127.0.0.1"
+        self.listen_port: int = 8888
 
-    def on_start(self, ten: TenEnv):
-        self.listen_addr = ten.get_property_string("listen_addr")
-        self.listen_port = ten.get_property_int("listen_port")
-        """
-            white_list = ten.get_property_string("cmd_white_list")
-            if len(white_list) > 0:
-                self.cmd_white_list = white_list.split(",")
-        """
+        self.ten_env: AsyncTenEnv = None
 
-        ten.log_info(
-            f"on_start {self.listen_addr}:{self.listen_port}, {self.cmd_white_list}"
-        )
+        # http server instances
+        self.app = web.Application()
+        self.runner = None
 
-        self.server = HTTPServer(
-            (self.listen_addr, self.listen_port), partial(HTTPHandler, ten)
-        )
-        self.thread = threading.Thread(target=self.server.serve_forever)
-        self.thread.start()
+    # POST /cmd/{cmd_name}
+    async def handle_post_cmd(self, request):
+        ten_env = self.ten_env
 
-        ten.on_start_done()
+        try:
+            cmd_name = request.match_info.get('cmd_name')
 
-    def on_stop(self, ten: TenEnv):
-        self.server.shutdown()
-        self.thread.join()
-        ten.on_stop_done()
+            req_json = await request.json()
+            input = json.dumps(req_json, ensure_ascii=False)
 
-    def on_cmd(self, ten: TenEnv, cmd: Cmd):
+            ten_env.log_debug(
+                f"process incoming request {request.method} {request.path} {input}")
+
+            cmd = Cmd.create(cmd_name)
+            cmd.set_property_from_json("", input)
+            [cmd_result, _] = await asyncio.wait_for(ten_env.send_cmd(cmd), 5.0)
+
+            # return response
+            status = 200 if cmd_result.get_status_code() == StatusCode.OK else 502
+            return web.json_response(
+                cmd_result.get_property_to_json(""), status=status
+            )
+        except json.JSONDecodeError:
+            return web.Response(status=400)
+        except asyncio.TimeoutError:
+            return web.Response(status=504)
+        except Exception as e:
+            ten_env.log_warn(
+                "failed to handle request with unknown exception, err {}".format(e))
+            return web.Response(status=500)
+
+    async def on_start(self, ten_env: AsyncTenEnv):
+        if await ten_env.is_property_exist("listen_addr"):
+            self.listen_addr = await ten_env.get_property_string("listen_addr")
+        if await ten_env.is_property_exist("listen_port"):
+            self.listen_port = await ten_env.get_property_int("listen_port")
+        self.ten_env = ten_env
+
+        ten_env.log_info(
+            f"http server listening on {self.listen_addr}:{self.listen_port}")
+
+        self.app.router.add_post("/cmd/{cmd_name}", self.handle_post_cmd)
+        self.runner = web.AppRunner(self.app)
+        await self.runner.setup()
+        site = web.TCPSite(self.runner, self.listen_addr, self.listen_port)
+        await site.start()
+
+    async def on_stop(self, ten_env: AsyncTenEnv):
+        await self.runner.cleanup()
+        self.ten_env = None
+
+    async def on_cmd(self, ten_env: AsyncTenEnv, cmd: Cmd):
         cmd_name = cmd.get_name()
-        ten.log_info("on_cmd {cmd_name}")
-        cmd_result = CmdResult.create(StatusCode.OK)
-        ten.return_result(cmd_result, cmd)
+        ten_env.log_debug(f"on_cmd {cmd_name}")
+        ten_env.return_result(CmdResult.create(StatusCode.OK), cmd)
