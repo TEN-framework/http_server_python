@@ -51,7 +51,7 @@ class ExtensionTesterSetProperty(ExtensionTester):
             self.event.set()
 
 
-def test_property():
+def test_set_property():
 
     # change port
     property_json_1 = '{"listen_port":8899}'
