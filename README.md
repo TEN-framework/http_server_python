@@ -2,12 +2,6 @@
 
 This project is a TEN extension that implements a simple HTTP server, enabling interaction with the running TEN graph from external systems.
 
-### Typical Usages:
-- **Modify Properties**: Adjust the properties of TEN extensions dynamically.
-- **Trigger Actions**: Initiate actions within TEN extensions via HTTP requests.
-- **Query Status**: Retrieve the current status of TEN extensions.
-
-
 ## Features
 
 - **Command Execution**: Seamlessly pass any `cmd` to the running TEN graph and receive the results.
@@ -16,6 +10,17 @@ This project is a TEN extension that implements a simple HTTP server, enabling i
 
 
 ## API
+
+### Property
+
+Refer to api definition in [manifest.json](manifest.json) and default values in [property.json](property.json).
+
+| Property |	Type |	Description |
+| - | - | - |
+| `listen_addr`| `string`| address to listen on |
+| `listen_port` | `int32` | port to listen on|	
+
+## HTTP API
 
 ### POST `/cmd/{cmd_name}`
 
@@ -29,8 +34,8 @@ This project is a TEN extension that implements a simple HTTP server, enabling i
 curl -X POST http://127.0.0.1:8888/cmd/example_cmd_name \
 -H "Content-Type: application/json" \
 -d '{
-    "property1": "value1",
-    "property2": "value2"
+    "num_property1": 1,
+    "str_property2": "Hello"
 }'
 ```
 
