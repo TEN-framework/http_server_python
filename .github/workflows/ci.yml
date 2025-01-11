@@ -34,6 +34,9 @@ jobs:
       - name: Check ten dependencies
         run: |
           task install
+
+      - name: Run tests
+        run: |
           task test -- -s -v
 
       - name: Release
