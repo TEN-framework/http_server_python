@@ -17,7 +17,7 @@ from ten import (
 import httpx
 
 
-class ExtensionTesterInvalidPathCase1(ExtensionTester):
+class ExtensionTesterNotFound1(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
 
@@ -28,7 +28,7 @@ class ExtensionTesterInvalidPathCase1(ExtensionTester):
             ten_env.stop_test()
 
 
-class ExtensionTesterInvalidPathCase2(ExtensionTester):
+class ExtensionTesterNotFound2(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
 
@@ -40,12 +40,12 @@ class ExtensionTesterInvalidPathCase2(ExtensionTester):
 
 
 def test_invalid_path():
-    tester = ExtensionTesterInvalidPathCase1()
+    tester = ExtensionTesterNotFound1()
     tester.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester.set_test_mode_single("http_server_python")
     tester.run()
 
-    tester2 = ExtensionTesterInvalidPathCase2()
+    tester2 = ExtensionTesterNotFound2()
     tester2.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester2.set_test_mode_single("http_server_python")
     tester2.run()
