@@ -1,34 +1,47 @@
 # http_server_python
 
-TEN extension of a Simple HTTP server, to make the running TEN graph interativeable with outside world.       
+This project is a TEN extension that implements a simple HTTP server, enabling interaction with the running TEN graph from external systems.
 
-Typical usages:     
-- Modify properties of TEN extensions          
-- Trigger actions of TEN extensions     
-- Query status of TEN extensions      
+### Typical Usages:
+- **Modify Properties**: Adjust the properties of TEN extensions dynamically.
+- **Trigger Actions**: Initiate actions within TEN extensions via HTTP requests.
+- **Query Status**: Retrieve the current status of TEN extensions.
 
 
 ## Features
 
-- Passing through any `cmd` to the running TEN graph, return result as needed
+- **Command Execution**: Seamlessly pass any `cmd` to the running TEN graph and receive the results.
+- **Asynchronous Handling**: Utilizes `asyncio` and `aiohttp` for efficient, non-blocking request processing.
+- **Configurable Server**: Easily configure the server's listening address and port through the TEN environment.
 
 
 ## API
 
-- `/cmd`
+### POST /cmd/{cmd_name}
 
-<!-- TODO: hide internal fields and add examples -->
+- **Description**: Sends a command with the specified name on the TEN graph.    
+- **Request Body**: JSON object containing the command properties.    
+- **Response**: JSON object with the command execution result.    
+
+#### Example Request
+
+```json
+curl -X POST http://127.0.0.1:8888/cmd/example_cmd_name \
+-H "Content-Type: application/json" \
+-d '{
+    "property1": "value1",
+    "property2": "value2"
+}'
+```
 
 ## Development
 
-### Build
-
-<!-- build dependencies and steps -->
-
-### Unit test
+### Standalone testing
 
 <!-- how to do unit test for the extension -->
 
-## Misc
+```bash
+task install
+task test
+```
 
-<!-- others if applicable -->
