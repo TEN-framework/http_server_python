@@ -39,7 +39,7 @@ class ExtensionTesterNotFound2(ExtensionTester):
             ten_env.stop_test()
 
 
-def test_invalid_path():
+def test_404():
     tester = ExtensionTesterNotFound1()
     tester.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester.set_test_mode_single("http_server_python")
