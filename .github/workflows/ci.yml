@@ -34,7 +34,7 @@ jobs:
       - name: Check ten dependencies
         run: |
           task install
-          task test
+          task test -- -s -v
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
