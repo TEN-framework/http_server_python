@@ -20,35 +20,27 @@ class ExtensionTesterBasic(ExtensionTester):
     def __init__(self):
         super().__init__()
         self.thread = None
-        self.event = threading.Event()
 
     def on_cmd(self, ten_env: TenEnvTester, cmd: Cmd) -> None:
         print(f"on_cmd name {cmd.get_name()}")
         ten_env.return_result(CmdResult.create(StatusCode.OK), cmd)
 
-        event_got = self.event.wait(timeout=5)
-        if not event_got:  # timeout
-            print("test error")
-        else:
-            ten_env.stop_test()
-
     def on_start(self, ten_env: TenEnvTester) -> None:
 
-        self.thread = threading.Thread(target=self._async_request, args=[])
+        self.thread = threading.Thread(
+            target=self._async_test, args=[ten_env])
         self.thread.start()
 
         ten_env.on_start_done()
 
-    def _async_request(self) -> None:
+    def _async_test(self, ten_env: TenEnvTester) -> None:
         property_json = {"num": 1, "str": "111"}
         r = httpx.post("http://127.0.0.1:8888/cmd/abc",
                        json=property_json, timeout=5)
-        print(r)   
+        print(r)
 
         if r.status_code == httpx.codes.OK:
-            # TODO: stop test directly once albe to call it in separate thread
-            #   ten_env.stop_test()
-            self.event.set()
+            ten_env.stop_test()
 
 
 def test_basic():
