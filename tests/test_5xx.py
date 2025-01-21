@@ -46,6 +46,5 @@ class ExtensionTester5xx(ExtensionTester):
 
 def test_5xx():
     tester = ExtensionTester5xx()
-    tester.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester.set_test_mode_single("http_server_python")
     tester.run()

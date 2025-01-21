@@ -47,18 +47,13 @@ class ExtensionTester400BadRequest(ExtensionTester):
 
 def test_4xx():
     tester_404_1 = ExtensionTester404NotFound1()
-    tester_404_1.add_addon_base_dir(
-        str(Path(__file__).resolve().parent.parent))
     tester_404_1.set_test_mode_single("http_server_python")
     tester_404_1.run()
 
     tester_404_2 = ExtensionTester404NotFound2()
-    tester_404_2.add_addon_base_dir(
-        str(Path(__file__).resolve().parent.parent))
     tester_404_2.set_test_mode_single("http_server_python")
     tester_404_2.run()
 
     tester_400 = ExtensionTester400BadRequest()
-    tester_400.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester_400.set_test_mode_single("http_server_python")
     tester_400.run()

@@ -37,6 +37,5 @@ class ExtensionTesterTimeout(ExtensionTester):
 
 def test_timeout():
     tester = ExtensionTesterTimeout()
-    tester.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester.set_test_mode_single("http_server_python")
     tester.run()
