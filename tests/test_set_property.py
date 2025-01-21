@@ -48,20 +48,17 @@ def test_set_property():
     # change port
     property_json_1 = '{"listen_port":8899}'
     tester_1 = ExtensionTesterSetProperty()
-    tester_1.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester_1.set_test_mode_single("http_server_python", property_json_1)
     tester_1.run()
 
     # change port with localhost
     property_json_2 = '{"listen_addr":"127.0.0.1","listen_port":8899}'
     tester_2 = ExtensionTesterSetProperty()
-    tester_2.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester_2.set_test_mode_single("http_server_python", property_json_2)
     tester_2.run()
 
     # change port with any addr
     property_json_3 = '{"listen_addr":"0.0.0.0","listen_port":8899}'
     tester_3 = ExtensionTesterSetProperty()
-    tester_3.add_addon_base_dir(str(Path(__file__).resolve().parent.parent))
     tester_3.set_test_mode_single("http_server_python", property_json_3)
     tester_3.run()
