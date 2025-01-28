@@ -9,6 +9,7 @@ from ten import (
     ExtensionTester,
     TenEnvTester,
     Cmd,
+    Data,
     CmdResult,
     StatusCode,
 )
@@ -17,24 +18,23 @@ import threading
 import math
 
 
-class ExtensionTesterBasic(ExtensionTester):
+class ExtensionTesterData(ExtensionTester):
     def __init__(self):
         super().__init__()
         self.thread = None
 
-    def on_cmd(self, ten_env: TenEnvTester, cmd: Cmd) -> None:
-        print(f"on_cmd name {cmd.get_name()}")
+    def on_data(self, ten_env: TenEnvTester, data: Data) -> None:
+        ten_env.log_debug(f"on_data name {data.get_name()}")
 
-        num_val = cmd.get_property_int('num')
+        num_val = data.get_property_int('num')
         assert num_val == 1
-        str_val = cmd.get_property_string('str')
+        str_val = data.get_property_string('str')
         assert str_val == '111'
-        unicode_str_val = cmd.get_property_string('unicode_str')
+        unicode_str_val = data.get_property_string('unicode_str')
         assert unicode_str_val == '你好！'
-        num_float_val = cmd.get_property_float('num_float')
+        num_float_val = data.get_property_float('num_float')
         assert math.isclose(num_float_val, -1.5)
 
-        ten_env.return_result(CmdResult.create(StatusCode.OK), cmd)
 
     def on_start(self, ten_env: TenEnvTester) -> None:
 
@@ -48,19 +48,19 @@ class ExtensionTesterBasic(ExtensionTester):
         property_json = {"num": 1, "num_float": -
                          1.5, "str": "111", "unicode_str": "你好！"}
 
-        r = httpx.post("http://127.0.0.1:8888/cmd/abc",
+        r = httpx.post("http://127.0.0.1:8888/data/abc",
                        json=property_json, timeout=5)
-        print(r)
+        ten_env.log_debug(f"{r}")
 
         if r.status_code == httpx.codes.OK:
             ten_env.stop_test()
 
 
-def test_basic():
-    tester = ExtensionTesterBasic()
+def test_data():
+    tester = ExtensionTesterData()
     tester.set_test_mode_single("http_server_python")
     tester.run()
 
 
 if __name__ == "__main__":
-    test_basic()
+    test_data()

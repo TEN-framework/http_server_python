@@ -6,6 +6,7 @@ from ten import (
     AsyncExtension,
     AsyncTenEnv,
     Cmd,
+    Data,
     StatusCode,
     CmdResult,
 )
@@ -54,6 +55,32 @@ class HTTPServerExtension(AsyncExtension):
                 "failed to handle request with unknown exception, err {}".format(e))
             return web.Response(status=500)
 
+    # POST /data/{data_name}
+    async def handle_post_data(self, request):
+        ten_env = self.ten_env
+
+        try:
+            data_name = request.match_info.get('data_name')
+
+            req_json = await request.json()
+            input = json.dumps(req_json, ensure_ascii=False)
+
+            ten_env.log_debug(
+                f"process incoming request {request.method} {request.path} {input}")
+
+            data = Data.create(data_name)
+            data.set_property_from_json("", input)
+            await ten_env.send_data(data)
+
+            # return response
+            return web.Response(status=200)
+        except json.JSONDecodeError:
+            return web.Response(status=400)
+        except Exception as e:
+            ten_env.log_warn(
+                "failed to handle request with unknown exception, err {}".format(e))
+            return web.Response(status=500)
+
     async def on_start(self, ten_env: AsyncTenEnv):
         if await ten_env.is_property_exist("listen_addr"):
             self.listen_addr = await ten_env.get_property_string("listen_addr")
@@ -65,6 +92,7 @@ class HTTPServerExtension(AsyncExtension):
             f"http server listening on {self.listen_addr}:{self.listen_port}")
 
         self.app.router.add_post("/cmd/{cmd_name}", self.handle_post_cmd)
+        self.app.router.add_post("/data/{data_name}", self.handle_post_data)
         self.runner = web.AppRunner(self.app)
         await self.runner.setup()
         site = web.TCPSite(self.runner, self.listen_addr, self.listen_port)
