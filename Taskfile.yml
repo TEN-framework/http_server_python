@@ -4,8 +4,10 @@ tasks:
   clean:
     desc: clean up
     cmds:
-      - rm -rf .ten .pytest_cache
+      - find . -type d -name .pytest_cache -exec rm -rf {} \; || true
       - find . -type d -name __pycache__ -exec rm -rf {} \; || true
+      - find . -type d -name .ten -exec rm -rf {} \; || true
+      - find . -name .coverage -exec rm -f {} \; || true
 
   test:
     desc: run tests
@@ -24,4 +26,4 @@ tasks:
     env:
       PYTHONPATH: "{{.USER_WORKING_DIR}}/.ten/app/ten_packages/system/ten_runtime_python/lib:{{.USER_WORKING_DIR}}/.ten/app/ten_packages/system/ten_runtime_python/interface"
     cmds:
-      -  pylint ./*.py
+      -  pylint ./*.py {{ .CLI_ARGS }}
