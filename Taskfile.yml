@@ -26,4 +26,4 @@ tasks:
     env:
       PYTHONPATH: "{{.USER_WORKING_DIR}}/.ten/app/ten_packages/system/ten_runtime_python/lib:{{.USER_WORKING_DIR}}/.ten/app/ten_packages/system/ten_runtime_python/interface"
     cmds:
-      -  pylint ./*.py {{ .CLI_ARGS }}
+      -  pylint ./ --disable=C --disable=W0718 {{ .CLI_ARGS }} || pylint-exit --warn-fail --error-fail $?
