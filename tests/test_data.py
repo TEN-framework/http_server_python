@@ -26,30 +26,31 @@ class ExtensionTesterData(ExtensionTester):
     def on_data(self, ten_env: TenEnvTester, data: Data) -> None:
         ten_env.log_debug(f"on_data name {data.get_name()}")
 
-        num_val = data.get_property_int('num')
+        num_val = data.get_property_int("num")
         assert num_val == 1
-        str_val = data.get_property_string('str')
-        assert str_val == '111'
-        unicode_str_val = data.get_property_string('unicode_str')
-        assert unicode_str_val == '你好！'
-        num_float_val = data.get_property_float('num_float')
+        str_val = data.get_property_string("str")
+        assert str_val == "111"
+        unicode_str_val = data.get_property_string("unicode_str")
+        assert unicode_str_val == "你好！"
+        num_float_val = data.get_property_float("num_float")
         assert math.isclose(num_float_val, -1.5)
-
 
     def on_start(self, ten_env: TenEnvTester) -> None:
 
-        self.thread = threading.Thread(
-            target=self._async_test, args=[ten_env])
+        self.thread = threading.Thread(target=self._async_test, args=[ten_env])
         self.thread.start()
 
         ten_env.on_start_done()
 
     def _async_test(self, ten_env: TenEnvTester) -> None:
-        property_json = {"num": 1, "num_float": -
-                         1.5, "str": "111", "unicode_str": "你好！"}
+        property_json = {
+            "num": 1,
+            "num_float": -1.5,
+            "str": "111",
+            "unicode_str": "你好！",
+        }
 
-        r = httpx.post("http://127.0.0.1:8888/data/abc",
-                       json=property_json, timeout=5)
+        r = httpx.post("http://127.0.0.1:8888/data/abc", json=property_json, timeout=5)
         ten_env.log_debug(f"{r}")
 
         if r.status_code == httpx.codes.OK:

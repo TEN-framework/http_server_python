@@ -44,6 +44,7 @@ class ExtensionTesterCmd400BadRequest(ExtensionTester):
         if r.status_code == httpx.codes.BAD_REQUEST:
             ten_env.stop_test()
 
+
 class ExtensionTesterData400BadRequest(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
@@ -53,6 +54,7 @@ class ExtensionTesterData400BadRequest(ExtensionTester):
         ten_env.log_debug(f"{r}")
         if r.status_code == httpx.codes.BAD_REQUEST:
             ten_env.stop_test()
+
 
 def test_4xx():
     tester_404_1 = ExtensionTester404NotFound1()

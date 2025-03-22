@@ -28,16 +28,14 @@ class ExtensionTester5xx(ExtensionTester):
         ten_env.return_result(CmdResult.create(StatusCode.ERROR), cmd)
 
     def on_start(self, ten_env: TenEnvTester) -> None:
-        self.thread = threading.Thread(
-            target=self._async_test, args=[ten_env])
+        self.thread = threading.Thread(target=self._async_test, args=[ten_env])
         self.thread.start()
 
         ten_env.on_start_done()
 
     def _async_test(self, ten_env: TenEnvTester) -> None:
         property_json = {"num": 1, "str": "111"}
-        r = httpx.post("http://127.0.0.1:8888/cmd/abc",
-                       json=property_json, timeout=5)
+        r = httpx.post("http://127.0.0.1:8888/cmd/abc", json=property_json, timeout=5)
         ten_env.log_debug(f"{r}")
 
         if r.status_code >= 500:
