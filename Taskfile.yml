@@ -27,3 +27,20 @@ tasks:
       PYTHONPATH: "{{.USER_WORKING_DIR}}/.ten/app/ten_packages/system/ten_runtime_python/lib:{{.USER_WORKING_DIR}}/.ten/app/ten_packages/system/ten_runtime_python/interface"
     cmds:
       -  pylint ./ --disable=C --disable=W0718 {{ .CLI_ARGS }} || pylint-exit --warn-fail --error-fail $?
+
+
+  format:
+    desc: format python code
+    cmds:
+      - black . {{ .CLI_ARGS }}
+
+  format-check:
+    desc: check code formatting
+    internal: true
+    cmds:
+      - black --check . {{ .CLI_ARGS }}
+
+  check:
+    desc: check code
+    cmds:
+      - task: format-check

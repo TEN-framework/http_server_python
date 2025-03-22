@@ -35,6 +35,10 @@ jobs:
         run: |
           task install
 
+      - name: Run format check
+        run: |
+          task check
+
       - name: Run tests
         run: |
           task test -- -s -v
