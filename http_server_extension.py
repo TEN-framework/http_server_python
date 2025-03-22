@@ -29,13 +29,14 @@ class HTTPServerExtension(AsyncExtension):
         ten_env = self.ten_env
 
         try:
-            cmd_name = request.match_info.get('cmd_name')
+            cmd_name = request.match_info.get("cmd_name")
 
             req_json = await request.json()
             input_json = json.dumps(req_json, ensure_ascii=False)
 
             ten_env.log_debug(
-                f"process incoming request {request.method} {request.path} {input_json}")
+                f"process incoming request {request.method} {request.path} {input_json}"
+            )
 
             cmd = Cmd.create(cmd_name)
             cmd.set_property_from_json("", input_json)
@@ -43,16 +44,15 @@ class HTTPServerExtension(AsyncExtension):
 
             # return response
             status = 200 if cmd_result.get_status_code() == StatusCode.OK else 502
-            return web.json_response(
-                cmd_result.get_property_to_json(""), status=status
-            )
+            return web.json_response(cmd_result.get_property_to_json(""), status=status)
         except json.JSONDecodeError:
             return web.Response(status=400)
         except asyncio.TimeoutError:
             return web.Response(status=504)
         except Exception as e:
             ten_env.log_warn(
-                "failed to handle request with unknown exception, err {}".format(e))
+                "failed to handle request with unknown exception, err {}".format(e)
+            )
             return web.Response(status=500)
 
     # POST /data/{data_name}
@@ -60,13 +60,14 @@ class HTTPServerExtension(AsyncExtension):
         ten_env = self.ten_env
 
         try:
-            data_name = request.match_info.get('data_name')
+            data_name = request.match_info.get("data_name")
 
             req_json = await request.json()
             input_json = json.dumps(req_json, ensure_ascii=False)
 
             ten_env.log_debug(
-                f"process incoming request {request.method} {request.path} {input_json}")
+                f"process incoming request {request.method} {request.path} {input_json}"
+            )
 
             data = Data.create(data_name)
             data.set_property_from_json("", input_json)
@@ -78,7 +79,8 @@ class HTTPServerExtension(AsyncExtension):
             return web.Response(status=400)
         except Exception as e:
             ten_env.log_warn(
-                "failed to handle request with unknown exception, err {}".format(e))
+                "failed to handle request with unknown exception, err {}".format(e)
+            )
             return web.Response(status=500)
 
     async def on_start(self, async_ten_env: AsyncTenEnv):
@@ -89,7 +91,8 @@ class HTTPServerExtension(AsyncExtension):
         self.ten_env = async_ten_env
 
         async_ten_env.log_info(
-            f"http server listening on {self.listen_addr}:{self.listen_port}")
+            f"http server listening on {self.listen_addr}:{self.listen_port}"
+        )
 
         self.app.router.add_post("/cmd/{cmd_name}", self.handle_post_cmd)
         self.app.router.add_post("/data/{data_name}", self.handle_post_data)

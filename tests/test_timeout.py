@@ -28,8 +28,7 @@ class ExtensionTesterTimeout(ExtensionTester):
         ten_env.on_start_done()
 
         property_json = {"num": 1, "str": "111"}
-        r = httpx.post("http://127.0.0.1:8888/cmd/abc",
-                       json=property_json, timeout=10)
+        r = httpx.post("http://127.0.0.1:8888/cmd/abc", json=property_json, timeout=10)
         ten_env.log_debug(f"{r}")
         if r.status_code == httpx.codes.GATEWAY_TIMEOUT:
             ten_env.stop_test()
