@@ -5,6 +5,7 @@
 # Refer to the "LICENSE" file in the root directory for more information.
 #
 from pathlib import Path
+import time
 from ten_runtime import (
     ExtensionTester,
     TenEnvTester,
@@ -15,6 +16,7 @@ import httpx
 class ExtensionTester404NotFound1(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
+        time.sleep(1)
 
         property_json = {"num": 1, "str": "111"}
         r = httpx.post("http://127.0.0.1:8888/cmd", json=property_json)
@@ -26,6 +28,7 @@ class ExtensionTester404NotFound1(ExtensionTester):
 class ExtensionTester404NotFound2(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
+        time.sleep(1)
 
         property_json = {"num": 1, "str": "111"}
         r = httpx.post("http://127.0.0.1:8888/cmd/aaa/123", json=property_json)
@@ -37,6 +40,7 @@ class ExtensionTester404NotFound2(ExtensionTester):
 class ExtensionTesterCmd400BadRequest(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
+        time.sleep(1)
 
         property_str = '{num": 1, "str": "111"}'  # not a valid json
         r = httpx.post("http://127.0.0.1:8888/cmd/aaa", content=property_str)
@@ -48,6 +52,7 @@ class ExtensionTesterCmd400BadRequest(ExtensionTester):
 class ExtensionTesterData400BadRequest(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
+        time.sleep(1)
 
         property_str = '{num": 1, "str": "111"}'  # not a valid json
         r = httpx.post("http://127.0.0.1:8888/data/aaa", content=property_str)
