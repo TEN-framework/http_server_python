@@ -87,10 +87,8 @@ class HTTPServerExtension(AsyncExtension):
             return web.Response(status=500)
 
     async def on_start(self, ten_env: AsyncTenEnv):
-        if await ten_env.is_property_exist("listen_addr"):
-            self.listen_addr, _ = await ten_env.get_property_string("listen_addr")
-        if await ten_env.is_property_exist("listen_port"):
-            self.listen_port, _ = await ten_env.get_property_int("listen_port")
+        self.listen_addr, _ = await ten_env.get_property_string("listen_addr")
+        self.listen_port, _ = await ten_env.get_property_int("listen_port")
         self.ten_env = ten_env
 
         ten_env.log_info(
