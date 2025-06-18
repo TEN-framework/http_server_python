@@ -2,7 +2,7 @@ import asyncio
 from aiohttp import web
 import json
 
-from ten import (
+from ten_runtime import (
     AsyncExtension,
     AsyncTenEnv,
     Cmd,
@@ -83,14 +83,14 @@ class HTTPServerExtension(AsyncExtension):
             )
             return web.Response(status=500)
 
-    async def on_start(self, async_ten_env: AsyncTenEnv):
-        if await async_ten_env.is_property_exist("listen_addr"):
-            self.listen_addr = await async_ten_env.get_property_string("listen_addr")
-        if await async_ten_env.is_property_exist("listen_port"):
-            self.listen_port = await async_ten_env.get_property_int("listen_port")
-        self.ten_env = async_ten_env
+    async def on_start(self, ten_env: AsyncTenEnv):
+        if await ten_env.is_property_exist("listen_addr"):
+            self.listen_addr = await ten_env.get_property_string("listen_addr")
+        if await ten_env.is_property_exist("listen_port"):
+            self.listen_port = await ten_env.get_property_int("listen_port")
+        self.ten_env = ten_env
 
-        async_ten_env.log_info(
+        ten_env.log_info(
             f"http server listening on {self.listen_addr}:{self.listen_port}"
         )
 
@@ -105,7 +105,7 @@ class HTTPServerExtension(AsyncExtension):
         await self.runner.cleanup()
         self.ten_env = None
 
-    async def on_cmd(self, async_ten_env: AsyncTenEnv, cmd: Cmd):
+    async def on_cmd(self, ten_env: AsyncTenEnv, cmd: Cmd):
         cmd_name = cmd.get_name()
-        async_ten_env.log_debug(f"on_cmd {cmd_name}")
-        async_ten_env.return_result(CmdResult.create(StatusCode.OK), cmd)
+        ten_env.log_debug(f"on_cmd {cmd_name}")
+        ten_env.return_result(CmdResult.create(StatusCode.OK, cmd))
