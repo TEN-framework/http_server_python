@@ -44,7 +44,7 @@ class HTTPServerExtension(AsyncExtension):
 
             # return response
             status = 200 if cmd_result.get_status_code() == StatusCode.OK else 502
-            response, err =  cmd_result.get_property_to_json("")
+            response, err = cmd_result.get_property_to_json("")
             if err is not None:
                 raise err
             return web.json_response(response, status=status)
