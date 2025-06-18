@@ -44,7 +44,10 @@ class HTTPServerExtension(AsyncExtension):
 
             # return response
             status = 200 if cmd_result.get_status_code() == StatusCode.OK else 502
-            return web.json_response(cmd_result.get_property_to_json(""), status=status)
+            response, err =  cmd_result.get_property_to_json("")
+            if err is not None:
+                raise err
+            return web.json_response(response, status=status)
         except json.JSONDecodeError:
             return web.Response(status=400)
         except asyncio.TimeoutError:
@@ -85,9 +88,9 @@ class HTTPServerExtension(AsyncExtension):
 
     async def on_start(self, ten_env: AsyncTenEnv):
         if await ten_env.is_property_exist("listen_addr"):
-            self.listen_addr = await ten_env.get_property_string("listen_addr")
+            self.listen_addr, _ = await ten_env.get_property_string("listen_addr")
         if await ten_env.is_property_exist("listen_port"):
-            self.listen_port = await ten_env.get_property_int("listen_port")
+            self.listen_port, _ = await ten_env.get_property_int("listen_port")
         self.ten_env = ten_env
 
         ten_env.log_info(
