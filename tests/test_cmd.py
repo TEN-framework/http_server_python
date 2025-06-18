@@ -25,16 +25,16 @@ class ExtensionTesterCmd(ExtensionTester):
     def on_cmd(self, ten_env: TenEnvTester, cmd: Cmd) -> None:
         ten_env.log_debug(f"on_cmd name {cmd.get_name()}")
 
-        num_val = cmd.get_property_int("num")
+        num_val, _ = cmd.get_property_int("num")
         assert num_val == 1
-        str_val = cmd.get_property_string("str")
+        str_val, _ = cmd.get_property_string("str")
         assert str_val == "111"
-        unicode_str_val = cmd.get_property_string("unicode_str")
+        unicode_str_val, _ = cmd.get_property_string("unicode_str")
         assert unicode_str_val == "你好！"
-        num_float_val = cmd.get_property_float("num_float")
+        num_float_val, _ = cmd.get_property_float("num_float")
         assert math.isclose(num_float_val, -1.5)
 
-        ten_env.return_result(CmdResult.create(StatusCode.OK), cmd)
+        ten_env.return_result(CmdResult.create(StatusCode.OK, cmd))
 
     def on_start(self, ten_env: TenEnvTester) -> None:
 

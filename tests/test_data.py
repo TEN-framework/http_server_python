@@ -26,13 +26,13 @@ class ExtensionTesterData(ExtensionTester):
     def on_data(self, ten_env: TenEnvTester, data: Data) -> None:
         ten_env.log_debug(f"on_data name {data.get_name()}")
 
-        num_val = data.get_property_int("num")
+        num_val, _ = data.get_property_int("num")
         assert num_val == 1
-        str_val = data.get_property_string("str")
+        str_val, _ = data.get_property_string("str")
         assert str_val == "111"
-        unicode_str_val = data.get_property_string("unicode_str")
+        unicode_str_val, _ = data.get_property_string("unicode_str")
         assert unicode_str_val == "你好！"
-        num_float_val = data.get_property_float("num_float")
+        num_float_val, _ = data.get_property_float("num_float")
         assert math.isclose(num_float_val, -1.5)
 
     def on_start(self, ten_env: TenEnvTester) -> None:

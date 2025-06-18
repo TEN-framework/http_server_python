@@ -23,7 +23,7 @@ class ExtensionTesterSetProperty(ExtensionTester):
 
     def on_cmd(self, ten_env: TenEnvTester, cmd: Cmd) -> None:
         ten_env.log_debug(f"on_cmd name {cmd.get_name()}")
-        ten_env.return_result(CmdResult.create(StatusCode.OK), cmd)
+        ten_env.return_result(CmdResult.create(StatusCode.OK, cmd))
 
     def on_start(self, ten_env: TenEnvTester) -> None:
 
