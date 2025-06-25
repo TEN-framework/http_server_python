@@ -20,11 +20,13 @@
   },
   "api": {
     "property": {
-      "listen_addr": {
-        "type": "string"
-      },
-      "listen_port": {
-        "type": "int32"
+      "properties": {
+        "listen_addr": {
+          "type": "string"
+        },
+        "listen_port": {
+          "type": "int32"
+        }
       }
     }
   }
