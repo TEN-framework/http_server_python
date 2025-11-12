@@ -26,6 +26,9 @@ class ExtensionTesterData(ExtensionTester):
     def on_data(self, ten_env: TenEnvTester, data: Data) -> None:
         ten_env.log_debug(f"on_data name {data.get_name()}")
 
+        # Verify that the data name is always "http_data"
+        assert data.get_name() == "http_data"
+
         num_val, _ = data.get_property_int("num")
         assert num_val == 1
         str_val, _ = data.get_property_string("str")
@@ -43,14 +46,17 @@ class ExtensionTesterData(ExtensionTester):
         ten_env.on_start_done()
 
     def _async_test(self, ten_env: TenEnvTester) -> None:
-        property_json = {
-            "num": 1,
-            "num_float": -1.5,
-            "str": "111",
-            "unicode_str": "你好！",
+        request_body = {
+            "name": "abc",
+            "payload": {
+                "num": 1,
+                "num_float": -1.5,
+                "str": "111",
+                "unicode_str": "你好！",
+            },
         }
 
-        r = httpx.post("http://127.0.0.1:8888/data/abc", json=property_json, timeout=5)
+        r = httpx.post("http://127.0.0.1:8888/data", json=request_body, timeout=5)
         ten_env.log_debug(f"{r}")
 
         if r.status_code == httpx.codes.OK:

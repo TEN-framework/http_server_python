@@ -13,24 +13,26 @@ from ten_runtime import (
 import httpx
 
 
-class ExtensionTester404NotFound1(ExtensionTester):
+class ExtensionTester400MissingName(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
         time.sleep(1)
 
-        property_json = {"num": 1, "str": "111"}
+        # Missing 'name' field should return 400
+        property_json = {"payload": {"num": 1, "str": "111"}}
         r = httpx.post("http://127.0.0.1:8888/cmd", json=property_json)
         ten_env.log_debug(f"{r}")
-        if r.status_code == httpx.codes.NOT_FOUND:
+        if r.status_code == httpx.codes.BAD_REQUEST:
             ten_env.stop_test()
 
 
-class ExtensionTester404NotFound2(ExtensionTester):
+class ExtensionTester404NotFound(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
         time.sleep(1)
 
-        property_json = {"num": 1, "str": "111"}
+        # Non-existent path should return 404
+        property_json = {"name": "aaa", "payload": {"num": 1, "str": "111"}}
         r = httpx.post("http://127.0.0.1:8888/cmd/aaa/123", json=property_json)
         ten_env.log_debug(f"{r}")
         if r.status_code == httpx.codes.NOT_FOUND:
@@ -42,8 +44,9 @@ class ExtensionTesterCmd400BadRequest(ExtensionTester):
         ten_env.on_start_done()
         time.sleep(1)
 
+        # Invalid JSON should return 400
         property_str = '{num": 1, "str": "111"}'  # not a valid json
-        r = httpx.post("http://127.0.0.1:8888/cmd/aaa", content=property_str)
+        r = httpx.post("http://127.0.0.1:8888/cmd", content=property_str)
         ten_env.log_debug(f"{r}")
         if r.status_code == httpx.codes.BAD_REQUEST:
             ten_env.stop_test()
@@ -54,21 +57,22 @@ class ExtensionTesterData400BadRequest(ExtensionTester):
         ten_env.on_start_done()
         time.sleep(1)
 
+        # Invalid JSON should return 400
         property_str = '{num": 1, "str": "111"}'  # not a valid json
-        r = httpx.post("http://127.0.0.1:8888/data/aaa", content=property_str)
+        r = httpx.post("http://127.0.0.1:8888/data", content=property_str)
         ten_env.log_debug(f"{r}")
         if r.status_code == httpx.codes.BAD_REQUEST:
             ten_env.stop_test()
 
 
 def test_4xx():
-    tester_404_1 = ExtensionTester404NotFound1()
-    tester_404_1.set_test_mode_single("http_server_python")
-    tester_404_1.run()
+    tester_400_missing = ExtensionTester400MissingName()
+    tester_400_missing.set_test_mode_single("http_server_python")
+    tester_400_missing.run()
 
-    tester_404_2 = ExtensionTester404NotFound2()
-    tester_404_2.set_test_mode_single("http_server_python")
-    tester_404_2.run()
+    tester_404 = ExtensionTester404NotFound()
+    tester_404.set_test_mode_single("http_server_python")
+    tester_404.run()
 
     tester_cmd_400 = ExtensionTesterCmd400BadRequest()
     tester_cmd_400.set_test_mode_single("http_server_python")

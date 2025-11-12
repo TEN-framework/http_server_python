@@ -20,6 +20,7 @@ import httpx
 class ExtensionTesterTimeout(ExtensionTester):
     def on_cmd(self, ten_env: TenEnvTester, cmd: Cmd) -> None:
         ten_env.log_debug(f"on_cmd name {cmd.get_name()}")
+        assert cmd.get_name() == "http_cmd"
         # NOTE: DON'T return result so that timeout will occur
         # ten_env.return_result(CmdResult.create(StatusCode.OK), cmd)
         pass
@@ -27,8 +28,8 @@ class ExtensionTesterTimeout(ExtensionTester):
     def on_start(self, ten_env: TenEnvTester) -> None:
         ten_env.on_start_done()
 
-        property_json = {"num": 1, "str": "111"}
-        r = httpx.post("http://127.0.0.1:8888/cmd/abc", json=property_json, timeout=10)
+        request_body = {"name": "abc", "payload": {"num": 1, "str": "111"}}
+        r = httpx.post("http://127.0.0.1:8888/cmd", json=request_body, timeout=10)
         ten_env.log_debug(f"{r}")
         if r.status_code == httpx.codes.GATEWAY_TIMEOUT:
             ten_env.stop_test()

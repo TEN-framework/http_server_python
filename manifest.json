@@ -28,6 +28,27 @@
           "type": "int32"
         }
       }
-    }
+    },
+    "cmd_out": [
+      {
+        "name": "http_cmd",
+        "property": {
+          "properties": {}
+        },
+        "result": {
+          "property": {
+            "properties": {}
+          }
+        }
+      }
+    ],
+    "data_out": [
+      {
+        "name": "http_data",
+        "property": {
+          "properties": {}
+        }
+      }
+    ]
   }
 }

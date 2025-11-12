@@ -22,20 +22,55 @@ Refer to api definition in [manifest.json](manifest.json) and default values in 
 
 ## HTTP API
 
-### POST `/cmd/{cmd_name}`
+### POST `/cmd`
 
-- **Description**: Sends a command with the specified name on the TEN graph.    
-- **Request Body**: JSON object containing the command properties.    
-- **Response**: JSON object with the command execution result.    
+- **Description**: Sends a command to the TEN graph.
+- **Request Body**: JSON object with the following structure:
+  - `name` (required): The name of the command to execute
+  - `payload` (optional): JSON object containing the command properties
+- **Response**: JSON object with the command execution result.
+- **Status Codes**:
+  - `200`: Command executed successfully
+  - `400`: Bad request (invalid JSON or missing `name` field)
+  - `502`: Command execution failed
+  - `504`: Command execution timeout (5 second timeout)
 
 #### Example Request
 
 ```bash
-curl -X POST http://127.0.0.1:8888/cmd/example_cmd_name \
+curl -X POST http://127.0.0.1:8888/cmd \
 -H "Content-Type: application/json" \
 -d '{
-    "num_property1": 1,
-    "str_property2": "Hello"
+    "name": "example_cmd_name",
+    "payload": {
+        "num_property1": 1,
+        "str_property2": "Hello"
+    }
+}'
+```
+
+### POST `/data`
+
+- **Description**: Sends data to the TEN graph (fire-and-forget, no response expected).
+- **Request Body**: JSON object with the following structure:
+  - `name` (required): The name of the data to send
+  - `payload` (optional): JSON object containing the data properties
+- **Response**: Empty response with status code.
+- **Status Codes**:
+  - `200`: Data sent successfully
+  - `400`: Bad request (invalid JSON or missing `name` field)
+
+#### Example Request
+
+```bash
+curl -X POST http://127.0.0.1:8888/data \
+-H "Content-Type: application/json" \
+-d '{
+    "name": "example_data_name",
+    "payload": {
+        "num_property1": 1,
+        "str_property2": "Hello"
+    }
 }'
 ```
 

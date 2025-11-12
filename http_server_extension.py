@@ -24,22 +24,27 @@ class HTTPServerExtension(AsyncExtension):
         self.app = web.Application()
         self.runner = None
 
-    # POST /cmd/{cmd_name}
+    # POST /cmd
     async def handle_post_cmd(self, request):
         ten_env = self.ten_env
 
         try:
-            cmd_name = request.match_info.get("cmd_name")
-
             req_json = await request.json()
-            input_json = json.dumps(req_json, ensure_ascii=False)
+
+            # Validate required 'name' field
+            if "name" not in req_json:
+                return web.Response(status=400)
+
+            cmd_name = req_json["name"]
+            payload = req_json.get("payload", {})
+            payload_json = json.dumps(payload, ensure_ascii=False)
 
             ten_env.log_debug(
-                f"process incoming request {request.method} {request.path} {input_json}"
+                f"process incoming request {request.method} {request.path} name={cmd_name} payload={payload_json}"
             )
 
-            cmd = Cmd.create(cmd_name)
-            cmd.set_property_from_json("", input_json)
+            cmd = Cmd.create("http_cmd")
+            cmd.set_property_from_json("", payload_json)
             [cmd_result, _] = await asyncio.wait_for(ten_env.send_cmd(cmd), 5.0)
 
             # return response
@@ -58,22 +63,27 @@ class HTTPServerExtension(AsyncExtension):
             )
             return web.Response(status=500)
 
-    # POST /data/{data_name}
+    # POST /data
     async def handle_post_data(self, request):
         ten_env = self.ten_env
 
         try:
-            data_name = request.match_info.get("data_name")
-
             req_json = await request.json()
-            input_json = json.dumps(req_json, ensure_ascii=False)
+
+            # Validate required 'name' field
+            if "name" not in req_json:
+                return web.Response(status=400)
+
+            data_name = req_json["name"]
+            payload = req_json.get("payload", {})
+            payload_json = json.dumps(payload, ensure_ascii=False)
 
             ten_env.log_debug(
-                f"process incoming request {request.method} {request.path} {input_json}"
+                f"process incoming request {request.method} {request.path} name={data_name} payload={payload_json}"
             )
 
-            data = Data.create(data_name)
-            data.set_property_from_json("", input_json)
+            data = Data.create("http_data")
+            data.set_property_from_json("", payload_json)
             await ten_env.send_data(data)
 
             # return response
@@ -95,8 +105,8 @@ class HTTPServerExtension(AsyncExtension):
             f"http server listening on {self.listen_addr}:{self.listen_port}"
         )
 
-        self.app.router.add_post("/cmd/{cmd_name}", self.handle_post_cmd)
-        self.app.router.add_post("/data/{data_name}", self.handle_post_data)
+        self.app.router.add_post("/cmd", self.handle_post_cmd)
+        self.app.router.add_post("/data", self.handle_post_data)
         self.runner = web.AppRunner(self.app)
         await self.runner.setup()
         site = web.TCPSite(self.runner, self.listen_addr, self.listen_port)

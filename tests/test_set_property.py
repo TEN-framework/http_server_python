@@ -23,6 +23,7 @@ class ExtensionTesterSetProperty(ExtensionTester):
 
     def on_cmd(self, ten_env: TenEnvTester, cmd: Cmd) -> None:
         ten_env.log_debug(f"on_cmd name {cmd.get_name()}")
+        assert cmd.get_name() == "http_cmd"
         ten_env.return_result(CmdResult.create(StatusCode.OK, cmd))
 
     def on_start(self, ten_env: TenEnvTester) -> None:
@@ -33,8 +34,8 @@ class ExtensionTesterSetProperty(ExtensionTester):
         ten_env.on_start_done()
 
     def _async_test(self, ten_env: TenEnvTester) -> None:
-        property_json = {"num": 1, "str": "111"}
-        r = httpx.post("http://127.0.0.1:8899/cmd/abc", json=property_json, timeout=5)
+        request_body = {"name": "abc", "payload": {"num": 1, "str": "111"}}
+        r = httpx.post("http://127.0.0.1:8899/cmd", json=request_body, timeout=5)
         ten_env.log_debug(f"{r}")
 
         if r.status_code == httpx.codes.OK:
