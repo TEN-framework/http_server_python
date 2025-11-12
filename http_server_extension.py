@@ -38,13 +38,14 @@ class HTTPServerExtension(AsyncExtension):
             cmd_name = req_json["name"]
             payload = req_json.get("payload", {})
             payload_json = json.dumps(payload, ensure_ascii=False)
+            req_json_str = json.dumps(req_json, ensure_ascii=False)
 
             ten_env.log_debug(
                 f"process incoming request {request.method} {request.path} name={cmd_name} payload={payload_json}"
             )
 
             cmd = Cmd.create("http_cmd")
-            cmd.set_property_from_json("", payload_json)
+            cmd.set_property_from_json("", req_json_str)
             [cmd_result, _] = await asyncio.wait_for(ten_env.send_cmd(cmd), 5.0)
 
             # return response
@@ -77,13 +78,14 @@ class HTTPServerExtension(AsyncExtension):
             data_name = req_json["name"]
             payload = req_json.get("payload", {})
             payload_json = json.dumps(payload, ensure_ascii=False)
+            req_json_str = json.dumps(req_json, ensure_ascii=False)
 
             ten_env.log_debug(
                 f"process incoming request {request.method} {request.path} name={data_name} payload={payload_json}"
             )
 
             data = Data.create("http_data")
-            data.set_property_from_json("", payload_json)
+            data.set_property_from_json("", req_json_str)
             await ten_env.send_data(data)
 
             # return response

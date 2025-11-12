@@ -34,11 +34,6 @@
         "name": "http_cmd",
         "property": {
           "properties": {}
-        },
-        "result": {
-          "property": {
-            "properties": {}
-          }
         }
       }
     ],

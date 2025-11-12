@@ -16,6 +16,7 @@ from ten_runtime import (
 import httpx
 import threading
 import math
+import json
 
 
 class ExtensionTesterData(ExtensionTester):
@@ -29,14 +30,19 @@ class ExtensionTesterData(ExtensionTester):
         # Verify that the data name is always "http_data"
         assert data.get_name() == "http_data"
 
-        num_val, _ = data.get_property_int("num")
-        assert num_val == 1
-        str_val, _ = data.get_property_string("str")
-        assert str_val == "111"
-        unicode_str_val, _ = data.get_property_string("unicode_str")
-        assert unicode_str_val == "你好！"
-        num_float_val, _ = data.get_property_float("num_float")
-        assert math.isclose(num_float_val, -1.5)
+        # Get the full JSON and parse it to access nested properties
+        req_json_str, _ = data.get_property_to_json("")
+        req_json = json.loads(req_json_str)
+
+        # Verify the structure includes name and payload
+        assert req_json["name"] == "abc"
+        assert "payload" in req_json
+
+        payload = req_json["payload"]
+        assert payload["num"] == 1
+        assert payload["str"] == "111"
+        assert payload["unicode_str"] == "你好！"
+        assert math.isclose(payload["num_float"], -1.5)
 
     def on_start(self, ten_env: TenEnvTester) -> None:
 
