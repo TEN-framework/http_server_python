@@ -10,5 +10,4 @@ class HTTPServerExtensionAddon(Addon):
     def on_create_instance(self, ten_env: TenEnv, name: str, context):
         from .http_server_extension import HTTPServerExtension
 
-        ten_env.on_create_instance_done(
-            HTTPServerExtension(name), context)
+        ten_env.on_create_instance_done(HTTPServerExtension(name), context)
